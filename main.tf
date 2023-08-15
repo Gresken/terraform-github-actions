@@ -38,7 +38,7 @@ data "aws_ami" "ubuntu" {
 }
 
 resource "aws_instance" "app" {
-  ami                    = data.aws_ami.amazon_linux_2.id
+  ami                    = [data.aws_ami.amazon_linux_2.id]
   instance_type          = "t2.nano"
   vpc_security_group_ids = [aws_security_group.web-sg.id]
   key_name = "challenge"
