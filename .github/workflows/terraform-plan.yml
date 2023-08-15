@@ -6,7 +6,7 @@ on:
 env:
   TF_CLOUD_ORGANIZATION: "Chanllenge"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  TF_WORKSPACE: "Challenge-N5"
+  TF_WORKSPACE: "terra-github-actions"
   CONFIG_DIRECTORY: "./"
 
 jobs:
