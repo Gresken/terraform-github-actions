@@ -39,7 +39,7 @@ data "aws_ami" "ubuntu" {
 resource "aws_iam_instance_profile" "profile_EC2-Deploy" {
   name = "profile_EC2-Deploy"
 
-  roles = [aws_iam_role.EC2-Deploy.name] 
+  role = [aws_iam_role.EC2-Deploy.name] 
 }
 
 resource "aws_instance" "app" {
