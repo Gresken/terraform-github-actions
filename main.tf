@@ -104,7 +104,6 @@ resource "aws_iam_policy_attachment" "attach_ECR-FullAccess" {
   policy_arn = aws_iam_policy.ECR-FullAccess.arn
   roles      = [aws_iam_role.EC2-Deploy.name]
 }
-
 resource "aws_security_group" "web-sg" {
   name = "${random_pet.sg.id}-sg"
   ingress {
