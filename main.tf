@@ -36,21 +36,27 @@ data "aws_ami" "ubuntu" {
 
   owners = ["099720109477"] # Canonical
 }
+resource "aws_iam_instance_profile" "profile_EC2-Deploy" {
+  name = "profile_EC2-Deploy"
+
+  roles = [aws_iam_role.EC2-Deploy.name] 
+}
 
 resource "aws_instance" "app" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t2.nano"
   vpc_security_group_ids = [aws_security_group.web-sg.id]
+  iam_instance_profile = aws_iam_instance_profile.profile_EC2-Deploy.name
   key_name = "challenge"
 
   user_data = <<-EOF
               #!/bin/bash
               apt-get update
-              apt-get install apt-transport-https ca-certificates curl software-properties-common
+              apt-get install -y apt-transport-https ca-certificates curl software-properties-common
               curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
-              add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu  $(lsb_release -cs)  stable"
+              add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
               apt-get update
-              apt-get install docker-ce
+              apt-get install -y docker-ce
               systemctl start docker
               systemctl enable docker
               groupadd docker
