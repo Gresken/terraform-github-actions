@@ -36,10 +36,46 @@ data "aws_ami" "ubuntu" {
 
   owners = ["099720109477"] # Canonical
 }
+
+data "aws_iam_policy_document" "assume_role_policy" {
+  version = "2012-10-17"
+
+  statement {
+    actions = ["sts:AssumeRole"]
+    effect  = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["ec2.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "EC2-Deploy" {
+  name = "EC2-Deploy"
+
+  assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+}
+
+resource "aws_iam_policy" "ECR-FullAccess" {
+  name        = "ECR-FullAccess"
+  description = "Policy for EC2 instances to have full access to ECR"
+  
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = "ecr:*",
+        Effect   = "Allow",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_instance_profile" "profile_EC2-Deploy" {
   name = "profile_EC2-Deploy"
 
-  role = [aws_iam_role.EC2-Deploy.name] 
+  role = aws_iam_role.EC2-Deploy.name
 }
 
 resource "aws_instance" "app" {
@@ -62,6 +98,11 @@ resource "aws_instance" "app" {
               groupadd docker
               usermod -aG docker ubuntu
               EOF
+}
+resource "aws_iam_policy_attachment" "attach_ECR-FullAccess" {
+  name       = "attach_ECR-FullAccess"
+  policy_arn = aws_iam_policy.ECR-FullAccess.arn
+  roles      = [aws_iam_role.EC2-Deploy.name]
 }
 
 resource "aws_security_group" "web-sg" {
